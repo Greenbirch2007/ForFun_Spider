@@ -1,5 +1,6 @@
 #! coding:utf-8 -*-
 import time
+import os
 import requests
 import re
 import urllib
@@ -23,7 +24,8 @@ def parse_Video(html):
     pattern = re.compile('<video class="video" src=(.*?)></video>'+'.*?<h2 class="videoinfo-title">(.*?)</h2>',re.S)
     items = re.findall(pattern,html)
     for item in items:
-        urllib.request.urlretrieve(item[0], '/home/w/Desktop/V/%s.mp4' % item[1])
+        n_path = os.getcwd()
+        urllib.request.urlretrieve(item[0], '{0}/{1}.mp4'.format(n_path,item[1]))
 
 
 if __name__ =="__main__":
