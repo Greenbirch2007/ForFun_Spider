@@ -9,35 +9,77 @@ from GDG_link import f_l
 
 
 
-def get_one_page(url):
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            return response.text
-        return None
-
-    except RequestException:
-        return None
-
-
-def parse_Video(html):
-    pattern = re.compile('<video class="video" src=(.*?)></video>'+'.*?<h2 class="videoinfo-title">(.*?)</h2>',re.S)
-    items = re.findall(pattern,html)
-    for item in items:
-        n_path = os.getcwd()
-        urllib.request.urlretrieve(item[0], '{0}/{1}.mp4'.format(n_path,item[1]))
-
-
-if __name__ =="__main__":
-    for url_n in f_l:
-        f_url = 'https://haokan.baidu.com/v?vid={0}'.format(url_n)
-        html =get_one_page(f_url)
-        parse_Video(html)
-        time.sleep(1)
-        print(f_url)
-
-
+# def get_one_page(url):
+#     try:
+#         response = requests.get(url)
+#         if response.status_code == 200:
+#             return response.text
+#         return None
+#
+#     except RequestException:
+#         return None
+#
+#
+# def parse_Video(html):
+#     pattern = re.compile('<video class="video" src=(.*?)></video>'+'.*?<h2 class="videoinfo-title">(.*?)</h2>',re.S)
+#     items = re.findall(pattern,html)
+#     for item in items:
+#         n_path = os.getcwd()
+#         urllib.request.urlretrieve(item[0], '{0}/{1}.mp4'.format(n_path,item[1]))
+#
+#
+# if __name__ =="__main__":
+#     for url_n in f_l:
+#         f_url = 'https://haokan.baidu.com/v?vid={0}'.format(url_n)
+#         html =get_one_page(f_url)
+#         parse_Video(html)
+#         time.sleep(1)
+#         print(f_url)
 
 
+
+
+
+# -----------------重构代码　1:写一个类，用类中的方法互相调用  2. 用with open上下文来下载-
+
+
+
+class Gdgvedio(object):
+    def __init__(self,url):# 初始化时，直接传入url,相当于过渡了一层
+        self.url =url
+
+    def get_one_page(self):
+        try:
+            response = requests.get(self.url)
+            if response.status_code == 200:
+                self.response = response.text
+                return self.response
+            return None
+
+        except RequestException:
+            return None
+
+    def parse_Video(self):
+        pattern = re.compile('<video class="video" src=(.*?)></video>'+'.*?<h2 class="videoinfo-title">(.*?)</h2>',re.S)
+        items = re.findall(pattern,self.response)
+        for item in items:
+            n_path = os.getcwd()
+
+            # 　使用request.urlretrieve 来下载
+            # urllib.request.urlretrieve(item[0], '{0}/{1}.mp4'.format(n_path,item[1]))
+            #　使用with open来下载
+            with open('{0}/{1}.mp4'.format(n_path,item[1]), 'wb') as f:  # 图片不需要encoding编码
+                f.write(self.response.content)  # 写入字节流来保存文件
+                print("下载成功！")
+
+
+
+
+
+
+if __name__ == '__main__':
+    url = 'www.baidu.com'
+    v = Gdgvedio(url)
+    v.parse_Video()
 
 
